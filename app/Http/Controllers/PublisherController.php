@@ -2,105 +2,62 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PublisherRequest;
 use App\Http\Resources\PublisherResource;
 use App\Models\Publisher;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
-class PublisherController extends Controller
+class PublisherController extends ApiResponseController
 {
 
-    public function __construct()
+    /* public function __construct()
     {
         $this->middleware('content.store')->only('update');
-    }
+    }*/
 
     public function index()
     {
         try {
             $publisher = Publisher::orderBy('name')->get();
             if ($publisher) {
-                return response()->json([
-                    'status code' => 200,
-                    'succes' => true,
-                    'publishers' => PublisherResource::collection($publisher)->pluck('name', 'id'),
-
-
-                ]);
+                return $this->apiResponse(true, 'Publishers List', 'publishers', PublisherResource::collection($publisher)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
-            return response()->json([
-                'status code' => 204,
-                'success' => true,
-                'message' => 'No registered publishers.'
-            ]);
+            return $this->apiResponse(false, 'No registered publishers.', null, null, JsonResponse::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            return response()->json([
-                'code' => 401,
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
-    public function store(Request $request)
+    public function store(PublisherRequest $request)
     {
-        if (Publisher::where('name', '=', $request->name)->first() == null) {
-            $result = Publisher::create([
-                'name' => $request->name
-            ]);
-
-            if ($result) {
-                return response()->json([
-                    'status code' => 201,
-                    'success' => true,
-                    'message' => "New Publisher Add Successfully",
-                ]);
-            } else {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'message' => "New Publisher Add Unsuccessfully",
-                ]);
-            }
-        }
-        return response()->json([
-            'status code' => 401,
-            'success' => false,
-            'message' => 'Publisher already exists.'
+        //  if (Publisher::where('name', '=', $request->name)->first() == null) {
+        $result = Publisher::create([
+            'name' => $request->name
         ]);
+
+        if ($result) {
+            return $this->apiResponse(true, 'New Publisher Add Successfully', 'publisher', new PublisherResource($result), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, 'New Publisher Add Unsuccessfully', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
     }
 
-    public function update(Request $request, $id)
-    {   
+    public function update(PublisherRequest $request, $id)
+    {
         $publisher = publisher::find($id);
-        if (Publisher::where('name', '=', $request->name)->first() == null || $publisher->name == $request->name) {
-            
-            $this->middleware(function ($request, $next) {
-                return $next($request);
-            });
-
-            $publisher->name = $request->name;
+        if (Publisher::where('name', $request->name)->first() == null || $publisher->name == $request->name) {
+            $publisher->name = $request->name ?? $publisher->name;
             $result = $publisher->save();
-
-            if ($result) {
-                return response()->json([
-                    'status code' => 200,
-                    'success' => true,
-                    'message' => 'Publisher Update Successfully'
-                ]);
-            } else {
-                return response()->json([
-                    'status code' => 401,
-                    'success' => false,
-                    'message' => 'Publisher Update Unsuccessfully'
-                ]);
-            }
+        } else {
+            return $this->apiResponse(false, 'Publisher already exists.', null, null, JsonResponse::HTTP_NOT_FOUND);
         }
-        return response()->json([
-            'status code' => 401,
-            'success' => false,
-            'message' => 'Publisher already exists.'
-        ]);
+
+        if ($result) {
+            return $this->apiResponse(true, 'Publisher Update Successfully!', 'publisher', new PublisherResource($publisher), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, 'Publisher Update Unsuccessfully!', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
     }
 
     public function getBooks()
@@ -108,35 +65,18 @@ class PublisherController extends Controller
         try {
             $publisher = Publisher::orderBy('name')->get();
             if ($publisher) {
-                return response()->json([
-                    'status code' => 200,
-                    'succes' => true,
-                    'publishers' => PublisherResource::collection($publisher)
-                ]);
+                return $this->apiResponse(true, "Publishers' Books.", 'publishers', PublisherResource::collection($publisher), JsonResponse::HTTP_OK);
             }
-            return response()->json([
-                'status code' => 204,
-                'success' => true,
-                'message' => 'No registered publishers.'
-            ]);
+            return $this->apiResponse(false, "No registered publishers.", null, null, JsonResponse::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            return response()->json([
-                'code' => 401,
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
     public function getBooksById($id)
     {
         $publisher = Publisher::find($id);
-
-        return response()->json([
-            'status code' => 200,
-            'success' => true,
-            'author' =>  new PublisherResource($publisher)
-        ]);
+        return $this->apiResponse(true, "Publisher's Books.", 'publisher', new PublisherResource($publisher), JsonResponse::HTTP_OK);
     }
 
     public function search($search)
@@ -144,16 +84,10 @@ class PublisherController extends Controller
         try {
             $publishersearch = publisher::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
             if ($publishersearch) {
-                return response()->json([
-                    'success' => true,
-                    'publisher' =>  publisherResource::collection($publishersearch)->pluck('name', 'id')
-                ]);
+                return $this->apiResponse(true, "Publisher Search", 'publisher', publisherResource::collection($publishersearch)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
@@ -161,16 +95,8 @@ class PublisherController extends Controller
     {
         $result = Publisher::find($id)->delete();
         if ($result) {
-            return response()->json([
-                'status_code' => 200,
-                'success' => true,
-                'message' => "Publisher Delete Successfully",
-            ]);
+            return $this->apiResponse(true, "Publisher Delete Successfully!", null, null, JsonResponse::HTTP_OK);
         }
-        return response()->json([
-            'status_code' => 401,
-            'success' => false,
-            'message' => "Publisher Delete Unuccessfully",
-        ]);
+        return $this->apiResponse(false, "Publisher Delete Unsuccessfully!", null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 }

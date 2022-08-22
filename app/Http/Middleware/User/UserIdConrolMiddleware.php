@@ -5,6 +5,7 @@ namespace App\Http\Middleware\User;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class UserIdConrolMiddleware
@@ -18,33 +19,17 @@ class UserIdConrolMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        $apiresponse = app('App\Http\Controllers\ApiResponseController');
         try {
-            $User = User::findorfail($request->route('user'));
-            if ($User) {
+            $user = User::findorfail($request->route('user'));
+            if ($user) {
                 return $next($request);
-            }
-            else{
-                return response()->json([
-                    'status_code' => 500,
-                    'success' => false,
-                    'message' => "Something went wrong",
-                ]);
             }
         } catch (\Exception $e) {
             if ($e instanceof ModelNotFoundException) {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'error' => 'User Not Found',
-                ]);
-            } else {
-                
-                return response()->json([
-                    'status code' => 401,
-                    'succes' => false,
-                    'error' => $e->getMessage()
-                ]);
+                return $apiresponse->apiResponse(false,  'User not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
             }
+            return $apiresponse->apiResponse(false, null, 'error', $e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
         }
     }
 }

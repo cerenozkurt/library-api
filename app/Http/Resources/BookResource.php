@@ -24,8 +24,8 @@ class BookResource extends JsonResource
             'page_count'=>$this->page_count,
             'author' => Author::find($this->author_id)->name,
             'category' => Category::find($this->category_id)->name,
-            'publisher' => Publisher::find($this->publisher_id)->name   
-        
+            'publisher' => Publisher::find($this->publisher_id)->name,
+            'read_count' => $this->read_count,
         ];
     }
 }

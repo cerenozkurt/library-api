@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\Admin\BooksStoreMiddleware;
+use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
-use App\Models\book;
 use App\Models\Books;
-use App\Models\Category;
-use App\Models\Publisher;
-use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
-class BooksController extends Controller
+class BooksController extends ApiResponseController
 {
-    public function __construct()
+    /*public function __construct()
     {
         $this->middleware('books.store')->only('update');
-    }
+    }*/
 
     public function index()
     {
@@ -25,28 +21,15 @@ class BooksController extends Controller
         try {
             $book = Books::orderBy('name')->get();
             if ($book) {
-                return response()->json([
-                    'status code' => 200,
-                    'succes' => true,
-                    'books' => BookResource::collection($book),
-
-                ]);
+                return $this->apiResponse(true, "Books List", 'books', BookResource::collection($book), JsonResponse::HTTP_OK);
             }
-            return response()->json([
-                'status code' => 204,
-                'success' => true,
-                'message' => 'No registered books.'
-            ]);
+            return $this->apiResponse(false, "No registered books.", null, null, JsonResponse::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            return response()->json([
-                'code' => 401,
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
-    public function store(Request $request)
+    public function store(BookRequest $request)
     {
         if (Books::where('isbn', '=', $request->isbn)->first() == null) {
             $result = Books::create([
@@ -55,116 +38,75 @@ class BooksController extends Controller
                 'page_count' => $request->page_count,
                 'publisher_id' => $request->publisher_id,
                 'category_id' => $request->category_id,
-                'author_id' => $request->author_id
+                'author_id' => $request->author_id,
+                'read_count' => 0,
             ]);
 
             if ($result) {
-                return response()->json([
-                    'status code' => 201,
-                    'success' => true,
-                    'message' => "New Book Add Successfully",
-                ]);
+                return $this->apiResponse(true, "New Book Add Successfully.", 'book', new BookResource($result), JsonResponse::HTTP_OK);
             } else {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'message' => "New Book Add Unsuccessfully",
-                ]);
+                return $this->apiResponse(false, "New Book Add Unsuccessfully!.", null, null, JsonResponse::HTTP_NOT_FOUND);
             }
         } else {
-            return response()->json([
-                'status code' => 401,
-                'success' => false,
-                'message' => 'Book already exists.'
-            ]);
+            return $this->apiResponse(false, "Book already exists.", null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(BookRequest $request, $id)
     {
         $books = Books::find($id);
         if (
             Books::where('isbn', '=', $request->isbn)->first() == null || $books->isbn == $request->isbn
         ) {
 
-            $this->middleware(function ($request, $next) {
-                return $next($request);
-            });
 
-            $books->isbn = $request->isbn;
-            $books->name = $request->name;
-            $books->page_count = $request->page_count;
-            $books->publisher_id = $request->publisher_id;
-            $books->category_id = $request->category_id;
-            $books->author_id = $request->author_id;
+            $books->isbn = $request->isbn ?? $books->isbn;
+            $books->name = $request->name ?? $books->name;
+            $books->page_count = $request->page_count == $books->page_count;
+            $books->publisher_id = $request->publisher_id ?? $books->publisher_id;
+            $books->category_id = $request->category_id ?? $books->category_id;
+            $books->author_id = $request->author_id ?? $books->author_id;
             $result = $books->save();
 
             if ($result) {
-                return response()->json([
-                    'status code' => 200,
-                    'success' => true,
-                    'message' => 'Book Update Successfully'
-                ]);
+                return $this->apiResponse(true, "Book Update Successfully.", 'book', new BookResource($books), JsonResponse::HTTP_OK);
             } else {
-                return response()->json([
-                    'status code' => 401,
-                    'success' => false,
-                    'message' => 'Book Update Unsuccessfully'
-                ]);
+                return $this->apiResponse(true, "Book Update Unsuccessfully.", null, null, JsonResponse::HTTP_NOT_FOUND);
             }
         }
-        return response()->json([
-            'status code' => 401,
-            'success' => false,
-            'message' => 'Book already exists.'
-        ]);
+        return $this->apiResponse(true, "Book already exists.", null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 
     public function delete($id)
     {
         $result = Books::find($id)->delete();
         if ($result) {
-            return response()->json([
-                'status_code' => 200,
-                'success' => true,
-                'message' => "Book Delete Successfully",
-            ]);
+            return $this->apiResponse(true, "Book Delete Successfully!", null, null, JsonResponse::HTTP_OK);
         }
-        return response()->json([
-            'status_code' => 401,
-            'success' => false,
-            'message' => "Book Delete Unsuccessfully",
-        ]);
+        return $this->apiResponse(false, "Book Delete Unsuccessfully!", null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 
     public function search($search)
     {
         try {
             $booksearch = Books::where(
-                'isbn', 'LIKE', '%' . $search . '%')
-                ->orWhere( 'name', 'LIKE', '%' . $search . '%')
+                'isbn',
+                'LIKE',
+                '%' . $search . '%'
+            )
+                ->orWhere('name', 'LIKE', '%' . $search . '%')
                 ->orderBy('id', 'desc')->get();
             if ($booksearch) {
-                return response()->json([
-                    'success' => true,
-                    'books' =>  BookResource::collection($booksearch)->pluck('name','isbn')
-                ]);
+                return $this->apiResponse(true, "Book Search", 'books', BookResource::collection($booksearch)->pluck('name', 'isbn'), JsonResponse::HTTP_OK);
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
-    
+
     public function getBooksById($id)
     {
         $books = Books::find($id);
-        return response()->json([
-            'status code' => 200,
-            'success' => true,
-            'author' =>  new BookResource($books)
-        ]);
+        return $this->apiResponse(true, "Book Info", 'book', new BookResource($books), JsonResponse::HTTP_OK);
     }
 }

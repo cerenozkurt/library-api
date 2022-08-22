@@ -2,141 +2,84 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class CategoryController extends ApiResponseController
 {
 
-    public function __construct()
+    /*public function __construct()
     {
         $this->middleware('content.store')->only('update');
-    }
+    }*/
 
     public function index()
     {
         try {
             $Category = Category::orderBy('name')->get();
             if ($Category) {
-                return response()->json([
-                    'status code' => 200,
-                    'succes' => true,
-                    'Categorys' => CategoryResource::collection($Category)->pluck('name', 'id'),
-
-
-                ]);
+                return $this->apiResponse(true, "Categorys List.", 'categories', CategoryResource::collection($Category)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
-            return response()->json([
-                'status code' => 204,
-                'success' => true,
-                'message' => 'No registered Categorys.'
-            ]);
+            return $this->apiResponse(true, "No registered category.", null, null, JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
-            return response()->json([
-                'code' => 401,
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        if (Category::where('name', '=', $request->name)->first() == null) {
-            $result = Category::create([
-                'name' => $request->name
-            ]);
-
-            if ($result) {
-                return response()->json([
-                    'status code' => 201,
-                    'success' => true,
-                    'message' => "New Category Add Successfully",
-                ]);
-            } else {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'message' => "New Category Add Unsuccessfully",
-                ]);
-            }
-        }
-        return response()->json([
-            'status code' => 401,
-            'success' => false,
-            'message' => 'Category already exists.'
+        $result = Category::create([
+            'name' => $request->name
         ]);
+
+        if ($result) {
+            return $this->apiResponse(true, "New Category Add Successfully", 'category', new CategoryResource($result), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, "New Category Add Unsuccessfully", null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
     }
 
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
         $category = Category::find($id);
         if (Category::where('name', '=', $request->name)->first() == null || $category->name == $request->name) {
-            
-            $this->middleware(function ($request, $next) {
-                return $next($request);
-            });
-
-            $category->name = $request->name;
+            $category->name = $request->name ?? $category->name;
             $result = $category->save();
-
-            if ($result) {
-                return response()->json([
-                    'status code' => 200,
-                    'success' => true,
-                    'message' => 'Category Update Successfully'
-                ]);
-            } else {
-                return response()->json([
-                    'status code' => 401,
-                    'success' => false,
-                    'message' => 'Category Update Unsuccessfully'
-                ]);
-            }
+        } else {
+            return $this->apiResponse(false, "Category already exists.", null, null, JsonResponse::HTTP_NOT_FOUND);
         }
-        return response()->json([
-            'status code' => 401,
-            'success' => false,
-            'message' => 'Category already exists.'
-        ]);
+
+
+
+        if ($result) {
+            return $this->apiResponse(true, "Category Update Successfully.", 'category', new CategoryResource($category), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, "Category Update Unsuccessfully!", null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
     }
+
 
     public function getBooks()
     {
         try {
             $category = Category::orderBy('name')->get();
             if ($category) {
-                return response()->json([
-                    'status code' => 200,
-                    'succes' => true,
-                    'categorys' => CategoryResource::collection($category)
-                ]);
+                return $this->apiResponse(true, "Books of Categories", 'categories', CategoryResource::collection($category), JsonResponse::HTTP_OK);
             }
-            return response()->json([
-                'status code' => 204,
-                'success' => true,
-                'message' => 'No registered Categorys.'
-            ]);
+            return $this->apiResponse(true, "No registered categories.", null, null, JsonResponse::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            return response()->json([
-                'code' => 401,
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
     public function getBooksById($id)
     {
         $category = Category::find($id);
-
-        return response()->json([
-            'status code' => 200,
-            'success' => true,
-            'author' =>  new CategoryResource($category)
-        ]);
+        return $this->apiResponse(true, "Category books", 'category', new CategoryResource($category), JsonResponse::HTTP_OK);
     }
 
     public function search($search)
@@ -144,16 +87,10 @@ class CategoryController extends Controller
         try {
             $categorysearch = Category::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
             if ($categorysearch) {
-                return response()->json([
-                    'success' => true,
-                    'category' =>  CategoryResource::collection($categorysearch)->pluck('name', 'id')
-                ]);
+                return $this->apiResponse(true, "Category search", 'category', CategoryResource::collection($categorysearch)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
@@ -161,16 +98,8 @@ class CategoryController extends Controller
     {
         $result = Category::find($id)->delete();
         if ($result) {
-            return response()->json([
-                'status_code' => 200,
-                'success' => true,
-                'message' => "Category Delete Successfully",
-            ]);
+            return $this->apiResponse(true, 'Category Delete Successfully.', null, null, JsonResponse::HTTP_OK);
         }
-        return response()->json([
-            'status_code' => 401,
-            'success' => false,
-            'message' => "Category Delete Unsuccessfully",
-        ]);
+        return $this->apiResponse(false, 'Category Delete Unsuccessfully!', null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 }

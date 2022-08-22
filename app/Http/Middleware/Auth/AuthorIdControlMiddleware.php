@@ -6,6 +6,7 @@ use App\Models\Author;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthorIdControlMiddleware
@@ -19,33 +20,17 @@ class AuthorIdControlMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        $apiresponse = app('App\Http\Controllers\ApiResponseController');
         try {
             $author = Author::findorfail($request->route('author'));
             if ($author) {
                 return $next($request);
             }
-            else{
-                return response()->json([
-                    'status_code' => 500,
-                    'success' => false,
-                    'message' => "Something went wrong",
-                ]);
-            }
         } catch (\Exception $e) {
             if ($e instanceof ModelNotFoundException) {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'error' => 'Author Not Found',
-                ]);
-            } else {
-                
-                return response()->json([
-                    'status code' => 401,
-                    'succes' => false,
-                    'error' => $e->getMessage()
-                ]);
+                return $apiresponse->apiResponse(false, 'User not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
             }
+            return $apiresponse->apiResponse(false, null, 'error', $e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
         }
     }
 }

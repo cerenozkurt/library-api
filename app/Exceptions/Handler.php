@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
@@ -43,11 +44,8 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (MethodNotAllowedHttpException $e) {
-            return response()->json([
-                'status code' => 405,
-                'success' => false,
-                'message' => 'MethodNotAllowedException | Use of wrong method.                .'
-            ]);
+            $apiresponse = app('App\Http\Controllers\ApiResponseController');
+            return $apiresponse->apiResponse(false, null, 'error', 'MethodNotAllowedException | Use of wrong method.', JsonResponse::HTTP_METHOD_NOT_ALLOWED);
         });
 
         /*$this->renderable(function (QueryException $e) {
@@ -58,18 +56,12 @@ class Handler extends ExceptionHandler
             ]);
         });*/
         $this->renderable(function (RouteNotFoundException $e) {
-            return response()->json([
-                'status code' => 404,
-                'success' => false,
-                'message' => 'Route Not Found.',
-            ]);
+            $apiresponse = app('App\Http\Controllers\ApiResponseController');
+            return $apiresponse->apiResponse(false, null, 'error', 'Route Not Found.', JsonResponse::HTTP_NOT_FOUND);
         });
         $this->renderable(function (AuthenticationException $e) {
-            return response()->json([
-                'status code' => 401,
-                'success' => false,
-                'message' => 'AuthenticationException | Unauthenticated user.'
-            ]);
+            $apiresponse = app('App\Http\Controllers\ApiResponseController');
+            return $apiresponse->apiResponse(false, null, 'error', 'AuthenticationException | Unauthenticated user.', JsonResponse::HTTP_UNAUTHORIZED);
         });
     }
 }

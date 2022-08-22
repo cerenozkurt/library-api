@@ -64,17 +64,10 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.roles' => \App\Http\Middleware\CheckRoles::class,
-        'content.store' => \App\Http\Middleware\Auth\StoreContentMiddleware::class, 
-        'books.store' => \App\Http\Middleware\Auth\BooksStoreMiddleware::class, 
-        'library.store' => \App\Http\Middleware\Auth\LibraryStoreMiddleware::class, 
-        'role' => \App\Http\Middleware\Auth\RoleMiddleware::class, 
         'author.id.control' =>\App\Http\Middleware\Auth\AuthorIdControlMiddleware::class,
         'publisher.id.control' =>\App\Http\Middleware\Auth\PublisherIdControlMiddleware::class,
         'category.id.control' =>\App\Http\Middleware\Auth\CategoryIdControlMiddleware::class,
         'books.id.control' =>\App\Http\Middleware\Auth\BooksIdControlMiddleware::class,
-        'user.validation' =>\App\Http\Middleware\User\ValidationMiddleware::class,
-        'user.update' =>\App\Http\Middleware\User\UpdateMiddleware::class,
-        'edit.profile' =>\App\Http\Middleware\User\EditProfileMiddleware::class,
         'user.id.control' =>\App\Http\Middleware\User\UserIdConrolMiddleware::class,
     ];
 }

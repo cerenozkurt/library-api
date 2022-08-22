@@ -15,7 +15,8 @@ class Books extends Model
         'page_count',
         'publisher_id',
         'category_id',
-        'author_id'
+        'author_id',
+        'read_count'
     ];
 
     public function users()

@@ -17,6 +17,7 @@ class AuthorResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'read_count' => $this->read_count,
             'books' => BookResource::collection($this->books)->pluck('name'),
         ];
     }

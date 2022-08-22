@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Auth;
 use App\Models\Publisher;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PublisherIdControlMiddleware
@@ -18,34 +19,17 @@ class PublisherIdControlMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        $apiresponse = app('App\Http\Controllers\ApiResponseController');
         try {
             $publisher = Publisher::findorfail($request->route('publisher'));
             if ($publisher) {
                 return $next($request);
             }
-            else{
-                return response()->json([
-                    'status_code' => 500,
-                    'success' => false,
-                    'message' => "Something went wrong",
-                ]);
-            }
         } catch (\Exception $e) {
             if ($e instanceof ModelNotFoundException) {
-                return response()->json([
-                    'status code' => 404,
-                    'success' => false,
-                    'error' => 'publisher Not Found',
-                ]);
-            } else {
-                
-                return response()->json([
-                    'status code' => 401,
-                    'succes' => false,
-                    'error' => $e->getMessage()
-                ]);
+                return $apiresponse->apiResponse(false, 'Publisher not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
             }
+            return $apiresponse->apiResponse(false, null, 'error', $e->getMessage(), JsonResponse::HTTP_NOT_FOUND);
         }
     }
-    
 }
