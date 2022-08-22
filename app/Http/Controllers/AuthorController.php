@@ -24,22 +24,21 @@ class AuthorController extends ApiResponseController
         }
     }
 
+
     public function store(AuthorRequest $request)
     {
-        // if (Author::where('name', '=', $request->name)->first() == null) {
         $result = Author::create([
             'name' => $request->name,
             'read_count' => 0,
         ]);
 
         if ($result) {
-            return $this->apiResponse(true, 'New Author Add Successfully', null, null, JsonResponse::HTTP_OK);
+            return $this->apiResponse(true, 'New Author Add Successfully', 'author', new AuthorResource($result), JsonResponse::HTTP_OK);
         } else {
             return $this->apiResponse(false, 'New Author Add Unsuccessfully!', null, null, JsonResponse::HTTP_NOT_FOUND);
         }
-        //}
-        // return $this->apiResponse(false, 'Author already exists.', null, null, JsonResponse::HTTP_NOT_FOUND);
     }
+
 
     public function update(AuthorRequest $request, $id)
     {
@@ -61,6 +60,7 @@ class AuthorController extends ApiResponseController
         }
     }
 
+
     public function getBooks()
     {
         try {
@@ -74,11 +74,13 @@ class AuthorController extends ApiResponseController
         }
     }
 
+
     public function getBooksById($id)
     {
         $author = Author::find($id);
         return $this->apiResponse(true, "Author's books.", 'author', new AuthorResource($author), JsonResponse::HTTP_OK);
     }
+
 
     public function search($search)
     {
@@ -92,6 +94,7 @@ class AuthorController extends ApiResponseController
         }
     }
 
+
     public function delete($id)
     {
         $result = Author::find($id)->delete();
@@ -100,4 +103,6 @@ class AuthorController extends ApiResponseController
         }
         return $this->apiResponse(false, "Author Delete Unsuccessfully!", null, null, JsonResponse::HTTP_NOT_FOUND);
     }
+
+    
 }

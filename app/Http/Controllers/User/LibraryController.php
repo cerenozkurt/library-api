@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\ApiResponseController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LibraryRequest;
 use App\Http\Requests\StoreRequest;
 use App\Http\Resources\AuthorResource;
 use App\Http\Resources\BookResource;
@@ -49,7 +50,7 @@ class LibraryController extends ApiResponseController
     }
 
 
-    public function userAddToLibrary(StoreRequest $request)
+    public function userAddToLibrary(LibraryRequest $request)
     {
         $user_id = Auth::user()->id;
         if (UserBook::where('user_id', '=', $user_id)->where('book_id', '=', $request->book_id)->first() == null) {
@@ -58,12 +59,12 @@ class LibraryController extends ApiResponseController
                 'book_id' => $request->book_id
             ]);
             $book = Books::find($request->book_id);
-            $book->read_count = $book->read_count + 1;
+            $book->read_count = $book->read_count +1;
+            $book->save();
 
             $author = Author::find($book->author_id);
             $author->read_count = $author->read_count + 1;
             $author->save();
-            $book->save();
 
             if ($result) {
                 $book = Books::find($result->book_id);
