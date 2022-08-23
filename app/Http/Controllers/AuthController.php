@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserAuthRequest;
 use App\Http\Resources\UserResource;
+use App\Models\PersonalAccessTokens;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends ApiResponseController
 {
     public function index()
     {
         try {
-
             $users = User::namelist();
 
             if ($users) {
