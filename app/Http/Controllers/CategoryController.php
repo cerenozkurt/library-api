@@ -20,7 +20,7 @@ class CategoryController extends ApiResponseController
     public function index()
     {
         try {
-            $Category = Category::orderBy('name')->get();
+            $Category = Category::namelist();
             if ($Category) {
                 return $this->apiResponse(true, "Categorys List.", 'categories', CategoryResource::collection($Category)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
@@ -46,7 +46,7 @@ class CategoryController extends ApiResponseController
     public function update(CategoryRequest $request, $id)
     {
         $category = Category::find($id);
-        if (Category::where('name', '=', $request->name)->first() == null || $category->name == $request->name) {
+        if (Category::name($request->name)->first() == null || $category->name == $request->name) {
             $category->name = $request->name ?? $category->name;
             $result = $category->save();
         } else {
@@ -66,7 +66,7 @@ class CategoryController extends ApiResponseController
     public function getBooks()
     {
         try {
-            $category = Category::orderBy('name')->get();
+            $category = Category::namelist();
             if ($category) {
                 return $this->apiResponse(true, "Books of Categories", 'categories', CategoryResource::collection($category), JsonResponse::HTTP_OK);
             }
@@ -85,7 +85,7 @@ class CategoryController extends ApiResponseController
     public function search($search)
     {
         try {
-            $categorysearch = Category::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
+            $categorysearch = Category::search($search)->get();
             if ($categorysearch) {
                 return $this->apiResponse(true, "Category search", 'category', CategoryResource::collection($categorysearch)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }

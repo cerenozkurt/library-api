@@ -52,4 +52,24 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UserRoles::class);
     }
+
+    public function scopeEmail($query, $email)
+    {
+        return $query->where('email', $email);
+    }
+
+    public function scopeNameList($query)
+    {
+        return $query->orderby('name')->get();
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc');
+    }
+
+    public function scopeLibrarianList($query)
+    {
+        return $query->where('role_id', '=', '2')->get();
+    }
 }

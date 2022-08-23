@@ -43,7 +43,7 @@ Route::prefix('auth')->group(function () {
         Route::prefix('library')->middleware('check.roles:1|2|3')->group(function () {
             Route::get('/', [LibraryController::class, 'getMyLibrary']);
             Route::post('/add', [LibraryController::class, 'userAddToLibrary']);
-            Route::get('/delete/{books}', [LibraryController::class, 'userDeleteFromLibrary']);
+            Route::get('/delete/{books}', [LibraryController::class, 'userDeleteFromLibrary'])->middleware('books.id.control');
         });
 
 
@@ -72,6 +72,7 @@ Route::prefix('auth')->group(function () {
         });
     });
 });
+
 
 //public routes-> all users
 Route::prefix('library')->group(function () {

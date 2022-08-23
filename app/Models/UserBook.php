@@ -11,4 +11,9 @@ class UserBook extends Model
     protected $table = 'user_books';
     protected $fillable = ['user_id','book_id'];
     
+
+    public function scopeUserBook($query,$id)
+    {
+        return $query->where('user_id', $id);
+    }
 }

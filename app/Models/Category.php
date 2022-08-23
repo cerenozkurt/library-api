@@ -15,4 +15,19 @@ class Category extends Model
     {
         return $this->hasMany(Books::class);
     }
+
+    public function scopeNameList($query)
+    {
+        return $query->orderby('name')->get();
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc');
+    }
+
+    public function scopeName($query, $name)
+    {
+        return $query->where('name', $name);
+    }
 }

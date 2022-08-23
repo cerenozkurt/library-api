@@ -14,7 +14,7 @@ class AuthorController extends ApiResponseController
     public function index()
     {
         try {
-            $author = Author::orderBy('name')->get();
+            $author = Author::namelist();
             if ($author) {
                 return $this->apiResponse(true, 'Authors List', 'authors', AuthorResource::collection($author)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
@@ -44,7 +44,7 @@ class AuthorController extends ApiResponseController
     {
         $author = Author::find($id);
 
-        if (Author::where('name', $request->name)->first() == null) {
+        if (Author::name($request->name)->first() == null) {
             $author->name = $request->name ?? $author->name;
             $result = $author->save();
         } else if ($request->name == $author->name) {
@@ -64,7 +64,7 @@ class AuthorController extends ApiResponseController
     public function getBooks()
     {
         try {
-            $author = Author::orderBy('name')->get();
+            $author = Author::namelist();
             if ($author) {
                 return $this->apiResponse(false, "Authors' books.", 'authors', AuthorResource::collection($author), JsonResponse::HTTP_OK);
             }
@@ -85,7 +85,7 @@ class AuthorController extends ApiResponseController
     public function search($search)
     {
         try {
-            $authorsearch = Author::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
+            $authorsearch = Author::search($search)->get();
             if ($authorsearch) {
                 return $this->apiResponse(true, 'Author Search', 'author', AuthorResource::collection($authorsearch)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }

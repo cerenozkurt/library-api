@@ -31,5 +31,30 @@ class Books extends Model
     {
         return $this->belongsTo(Author::class);
     }
-    
+
+    public function scopeReadCount($query)
+    {
+        return $query->orderby('read_count', 'desc')->limit(15)->get();
+    }
+
+    public function scopeNameList($query)
+    {
+        return $query->orderby('name')->get();
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(
+            'isbn',
+            'LIKE',
+            '%' . $search . '%'
+        )
+            ->orWhere('name', 'LIKE', '%' . $search . '%')
+            ->orderBy('id', 'desc');
+    }
+
+    public function scopeISBN($query, $isbn)
+    {
+        return $query->where('isbn', $isbn);
+    }
 }

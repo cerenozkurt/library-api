@@ -19,7 +19,7 @@ class PublisherController extends ApiResponseController
     public function index()
     {
         try {
-            $publisher = Publisher::orderBy('name')->get();
+            $publisher = Publisher::nameList();
             if ($publisher) {
                 return $this->apiResponse(true, 'Publishers List', 'publishers', PublisherResource::collection($publisher)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }
@@ -31,7 +31,6 @@ class PublisherController extends ApiResponseController
 
     public function store(PublisherRequest $request)
     {
-        //  if (Publisher::where('name', '=', $request->name)->first() == null) {
         $result = Publisher::create([
             'name' => $request->name
         ]);
@@ -46,7 +45,7 @@ class PublisherController extends ApiResponseController
     public function update(PublisherRequest $request, $id)
     {
         $publisher = publisher::find($id);
-        if (Publisher::where('name', $request->name)->first() == null || $publisher->name == $request->name) {
+        if (Publisher::name($request->name)->first() == null || $publisher->name == $request->name) {
             $publisher->name = $request->name ?? $publisher->name;
             $result = $publisher->save();
         } else {
@@ -63,7 +62,7 @@ class PublisherController extends ApiResponseController
     public function getBooks()
     {
         try {
-            $publisher = Publisher::orderBy('name')->get();
+            $publisher = Publisher::nameList();
             if ($publisher) {
                 return $this->apiResponse(true, "Publishers' Books.", 'publishers', PublisherResource::collection($publisher), JsonResponse::HTTP_OK);
             }
@@ -82,7 +81,7 @@ class PublisherController extends ApiResponseController
     public function search($search)
     {
         try {
-            $publishersearch = publisher::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
+            $publishersearch = publisher::search($search)->get();
             if ($publishersearch) {
                 return $this->apiResponse(true, "Publisher Search", 'publisher', publisherResource::collection($publishersearch)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }

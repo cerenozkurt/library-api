@@ -24,25 +24,21 @@ class LibraryController extends ApiResponseController
 {
 
     public function getBooksById($id)
-    {
-        $userbooks = UserBook::where('user_id', '=', $id);
+    { 
+        //$userbooks = UserBook::where('user_id', $id)->get();
+        $userbooks = UserBook::userbook($id)->get();
         $user = User::find($id);
-        $userlibrary = ['user' => new UserResource($user), 'books' => UserBookResource::collection($userbooks->get())];
+        $userlibrary = ['user' => new UserResource($user), 'books' => UserBookResource::collection($userbooks)];
 
         return $this->apiResponse(true, "User's Books", 'library', $userlibrary, JsonResponse::HTTP_OK,);
-        /*  return response()->json([
-            'status code' => 200,
-            'success' => true,
-            'user' => User::find($id)->name,
-            'users library' => UserBookResource::collection($userbooks)
-        ]);*/
+      
     }
 
 
     public function getMyLibrary()
     {
         $user_id = Auth::user()->id;
-        $userbooks = UserBook::where('user_id', '=', $user_id)->get();
+        $userbooks = UserBook::userbook($user_id)->get();
         $user = User::find($user_id);
         $userlibrary = ['user' => new UserResource($user), 'books' => UserBookResource::collection($userbooks)];
 
@@ -52,8 +48,8 @@ class LibraryController extends ApiResponseController
 
     public function userAddToLibrary(LibraryRequest $request)
     {
-        $user_id = Auth::user()->id;
-        if (UserBook::where('user_id', '=', $user_id)->where('book_id', '=', $request->book_id)->first() == null) {
+        $user_id = Auth::user()->id;//(UserBook::where('user_id', '=', $user_id)->where('book_id', '=', $request->book_id)->first() == null
+        if (UserBook::userbook($user_id)->where('book_id', '=', $request->book_id)->first() == null) {
             $result = UserBook::create([
                 'user_id' => $user_id,
                 'book_id' => $request->book_id
@@ -77,10 +73,11 @@ class LibraryController extends ApiResponseController
         }
     }
 
+
     public function userDeleteFromLibrary($id)
     {
         $user_id = Auth::user()->id;
-        $userbook = UserBook::where('user_id', $user_id)->where('book_id', $id)->first();
+        $userbook = UserBook::userbook($user_id)->where('book_id', $id)->first();
         if ($userbook) {
             $book = Books::find($userbook->book_id);
             $result = $userbook->delete();
@@ -91,14 +88,15 @@ class LibraryController extends ApiResponseController
             }
             return $this->apiResponse(false, "Book Delete From Library Unsuccessfully.", null, null, JsonResponse::HTTP_NOT_FOUND);
         } else {
-            return $this->apiResponse(false, "Book Not Found", null, null, JsonResponse::HTTP_NOT_FOUND);
+            return $this->apiResponse(false, "Book not found on library.", null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
+
 
     public function mostReadBooks()
     {
         try {
-            $books = Books::orderby('read_count', 'desc')->limit(15)->get();
+            $books = Books::readcount();
             if ($books) {
                 return $this->apiResponse(true, "Most Read Books", 'books', BookResource::collection($books), JsonResponse::HTTP_OK);
             }
@@ -112,7 +110,7 @@ class LibraryController extends ApiResponseController
     public function mostReadAuthors()
     {
         try {
-            $author = Author::orderby('read_count', 'desc')->limit(15)->get();
+            $author = Author::readcount();
             if ($author) {
                 return $this->apiResponse(true, "Most Read Authors", 'authors', AuthorResource::collection($author), JsonResponse::HTTP_OK);
             }
@@ -121,4 +119,6 @@ class LibraryController extends ApiResponseController
             return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
+
+
 }

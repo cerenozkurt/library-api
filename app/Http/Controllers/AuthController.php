@@ -3,21 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserAuthRequest;
-use App\Http\Requests\UserRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends ApiResponseController
 {
     public function index()
     {
         try {
-            $users = User::orderby('name')->get();
+
+            $users = User::namelist();
 
             if ($users) {
                 return $this->apiResponse(true, 'Users List', 'users', UserResource::collection(User::all()), JsonResponse::HTTP_OK);
@@ -45,8 +44,7 @@ class AuthController extends ApiResponseController
     public function login(UserAuthRequest $request)
     {
         try {
-
-            $users = User::where('email', $request->email)->first();
+            $users = User::email($request->email)->first();
             if (!$users) {
                 return $this->apiResponse(false, 'Invalid email.', null, null, JsonResponse::HTTP_NOT_FOUND);
             }
@@ -65,7 +63,7 @@ class AuthController extends ApiResponseController
 
         $user = User::find($id);
 
-        if (User::where('email', $request->email)->first() == null || $user->email == $request->email) {
+        if (User::email($request->email)->first() == null || $user->email == $request->email) {
             $user->name = $request->name ?? $user->name;
             $user->password = $request->password ?? $user->password;
             $user->email = $request->email ?? $user->email;
@@ -130,7 +128,7 @@ class AuthController extends ApiResponseController
     public function limitedUserInfo()
     {
         try {
-            $users = User::orderby('name')->get();
+            $users = User::namelist();
             if ($users) {
                 return $this->apiResponse(true, "List of Usernames!", 'users', UserResource::collection($users)->pluck('name'), JsonResponse::HTTP_OK);
             }
@@ -143,7 +141,7 @@ class AuthController extends ApiResponseController
     public function search($search)
     {
         try {
-            $usersearch = User::where('name', 'LIKE', '%' . $search . '%')->orderBy('id', 'desc')->get();
+            $usersearch = User::search($search)->get();
             if ($usersearch) {
                 return $this->apiResponse(true, "User Search", 'users', userResource::collection($usersearch)->pluck('name'), JsonResponse::HTTP_OK);
             }
@@ -155,7 +153,7 @@ class AuthController extends ApiResponseController
     public function getLibrarians()
     {
         try {
-            $users = User::where('role_id', '=', '2')->get();
+            $users = User::librarianlist();
             if ($users) {
                 return $this->apiResponse(true, "Librarians", 'librarian users', UserResource::collection($users)->pluck('name', 'id'), JsonResponse::HTTP_OK);
             }

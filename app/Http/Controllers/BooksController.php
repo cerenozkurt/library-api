@@ -10,16 +10,12 @@ use Illuminate\Http\Request;
 
 class BooksController extends ApiResponseController
 {
-    /*public function __construct()
-    {
-        $this->middleware('books.store')->only('update');
-    }*/
 
     public function index()
     {
 
         try {
-            $book = Books::orderBy('name')->get();
+            $book = Books::nameList();
             if ($book) {
                 return $this->apiResponse(true, "Books List", 'books', BookResource::collection($book), JsonResponse::HTTP_OK);
             }
@@ -56,7 +52,7 @@ class BooksController extends ApiResponseController
     {
         $books = Books::find($id);
         if (
-            Books::where('isbn', '=', $request->isbn)->first() == null || $books->isbn == $request->isbn
+            Books::isbn($request->isbn)->first() == null || $books->isbn == $request->isbn
         ) {
 
 
@@ -89,13 +85,7 @@ class BooksController extends ApiResponseController
     public function search($search)
     {
         try {
-            $booksearch = Books::where(
-                'isbn',
-                'LIKE',
-                '%' . $search . '%'
-            )
-                ->orWhere('name', 'LIKE', '%' . $search . '%')
-                ->orderBy('id', 'desc')->get();
+            $booksearch = Books::search($search)->get();
             if ($booksearch) {
                 return $this->apiResponse(true, "Book Search", 'books', BookResource::collection($booksearch)->pluck('name', 'isbn'), JsonResponse::HTTP_OK);
             }
