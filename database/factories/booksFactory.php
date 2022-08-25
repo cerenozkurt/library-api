@@ -24,6 +24,7 @@ class booksFactory extends Factory
             'publisher_id'=> Publisher::all()->random()->id,
             'category_id'=>Category::all()->random()->id,
             'author_id'=>Author::all()->random()->id,
+            'read_count' => 0,
         ];
     }
 }

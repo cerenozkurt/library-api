@@ -102,4 +102,5 @@ class CategoryController extends ApiResponseController
         }
         return $this->apiResponse(false, 'Category Delete Unsuccessfully!', null, null, JsonResponse::HTTP_NOT_FOUND);
     }
+
 }
