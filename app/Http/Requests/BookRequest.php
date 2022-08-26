@@ -32,7 +32,8 @@ class BookRequest extends BaseFormRequest
                     'page_count' => ['required', 'integer', 'max:9000'],
                     'publisher_id' => ['required', 'exists:publishers,id'],
                     'category_id' => ['required', 'exists:categories,id'],
-                    'author_id' => ['required', 'exists:authors,id']
+                    'author_id' => ['required', 'exists:authors,id'],
+
                 ];
                 break;
             case 'update':
@@ -42,7 +43,8 @@ class BookRequest extends BaseFormRequest
                     'page_count' => ['integer', 'max:9000'],
                     'publisher_id' => ['exists:publishers,id'],
                     'category_id' => ['exists:categories,id'],
-                    'author_id' => ['exists:authors,id']
+                    'author_id' => ['exists:authors,id'],
+
                 ];
                 break;
             case 'uploadBookPicture':

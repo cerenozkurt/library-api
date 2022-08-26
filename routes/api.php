@@ -50,8 +50,11 @@ Route::prefix('auth')->group(function () {
 
         Route::prefix('library')->middleware('check.roles:1|2|3')->group(function () {
             Route::get('/', [LibraryController::class, 'getMyLibrary']);
+            Route::get('/{status}',[LibraryController::class, 'booksForStatus']);
             Route::post('/add', [LibraryController::class, 'userAddToLibrary']);
             Route::get('/delete/{books}', [LibraryController::class, 'userDeleteFromLibrary'])->middleware('books.id.control');
+            Route::post('/{books}/status',[LibraryController::class, 'updateStatus'])->middleware('books.id.control');
+        
         });
 
 

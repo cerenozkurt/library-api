@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class LibraryRequest extends BaseFormRequest
@@ -25,11 +26,24 @@ class LibraryRequest extends BaseFormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(Request $request)
     {
-        return [
-            'book_id' => ['required', 'exists:books,id']
-        ];
+
+
+        switch ($request->route()->getActionMethod()) {
+            case 'userAddToLibrary':
+                return [
+                    'book_id' => ['required', 'exists:books,id'],
+                    'status' => ['required','in:will_read,readed,reading'],
+
+                ];
+                break;
+            case 'updateStatus':
+                return [
+                    'status' => ['in:will_read,readed,reading'],
+                ];
+                break;
+        }
     }
    
 }

@@ -18,8 +18,23 @@ class UserBookResource extends JsonResource
     {
         return [
 
-            'book' => new BookResource(Books::find($this->book_id))
-                            
+            'book' => new BookResource(Books::find($this->book_id)),
+            'status' => $this->read_status($this->status)
         ];
+    }
+
+    public function read_status($status)
+    {
+        switch ($status) {
+            case 'will_read':
+                return 'I will read';
+                break;
+            case 'readed':
+                return 'I read';
+                break;
+            case 'reading':
+                return 'I reading';
+                break;
+        }
     }
 }
