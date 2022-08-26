@@ -19,8 +19,7 @@ class UserBookResource extends JsonResource
         return [
 
             'book' => new BookResource(Books::find($this->book_id))
-            
-                                  
+                            
         ];
     }
 }

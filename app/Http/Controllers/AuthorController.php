@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AuthorRequest;
 use App\Http\Resources\AuthorResource;
 use App\Models\Author;
+use App\Models\Media;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends ApiResponseController
@@ -104,5 +110,72 @@ class AuthorController extends ApiResponseController
         return $this->apiResponse(false, "Author Delete Unsuccessfully!", null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 
-    
+    public function uploadAuthorPicture(AuthorRequest $request, $id)
+    {
+        $author = Author::find($id);
+
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root' => public_path('authors'),
+        ]);
+
+        $path_with_filename = $disk->put('', $request->image);
+        $filename = basename($path_with_filename);
+        $authormedia = Media::find($author->media_id);
+
+
+        if ($authormedia) {
+            $oldFileName = $authormedia->filename;
+        } else {
+            $oldFileName = null;
+        }
+        $media = Media::query()
+            ->updateOrCreate(
+                ['id' => $author->media_id ?? 0],
+                ['filename' => $filename]
+            );
+
+
+        $author->media_id = $media->id;
+        $author->save();
+
+        if (!is_null($author['media'])) {
+            $author['media']->filename = $filename;
+        } else {
+            unset($author['media']);
+        }
+
+        if (public_path("authors/" . $oldFileName)) {
+
+            File::delete(public_path("authors/" . $oldFileName));
+        }
+
+        $authormedia2 = DB::table('media')->get()->firstWhere('id', $author->media_id);
+
+        if ($authormedia2) {
+            return $this->apiResponse(true, 'media uploaded', 'authorpicture', asset('profile/' . Media::find($author->media_id)->filename), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, 'media not upload', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function deleteAuthorPicture($id)
+    {
+        $author =Author::find($id);
+
+        if ($author->media_id) {
+
+            $authormedia = DB::table('media')->get()->firstWhere('id', $author->media_id);
+            $filename = $authormedia->filename;
+            $authormediatemp = $author->media_id;
+            $author->media_id = null;
+            $author->save();
+            //Storage::delete("public_html/profile" . $filename);
+            File::delete(public_path("authors/".$filename));
+            DB::table('media')->where('id', $authormediatemp)->delete();
+           
+            return $this->apiResponse(true, 'author picture deleted.',null, null, JsonResponse::HTTP_OK);
+        }
+        return $this->apiResponse(false,'author picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
 }

@@ -45,6 +45,11 @@ class BookRequest extends BaseFormRequest
                     'author_id' => ['exists:authors,id']
                 ];
                 break;
+            case 'uploadBookPicture':
+                return [
+                    'image' => 'required|image',
+                ];
+                break;
         }
     }
 }

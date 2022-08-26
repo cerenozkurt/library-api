@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 
-class AuthorRequest extends BaseFormRequest
+class ProfileRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,21 +24,13 @@ class AuthorRequest extends BaseFormRequest
     public function rules(Request $request)
     {
         switch ($request->route()->getActionMethod()) {
-            case 'store':
-                return [
-                    'name' => ['required', 'max:50', 'unique:authors,name'],
-                ];
-                break;
-            case 'update':
-                return [
-                    'name' => ['max:50'],
-                ];
-                break;
-            case 'uploadAuthorPicture':
+            case 'uploadProfilePicture':
                 return [
                     'image' => 'required|image',
                 ];
                 break;
+           
+           
         }
     }
 }

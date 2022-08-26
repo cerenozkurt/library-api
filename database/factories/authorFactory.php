@@ -15,6 +15,7 @@ class authorFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
+            'read_count' => 0
         ];
     }
 }

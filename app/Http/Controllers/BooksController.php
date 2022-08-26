@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Books;
+use App\Models\Media;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class BooksController extends ApiResponseController
 {
@@ -98,5 +102,74 @@ class BooksController extends ApiResponseController
     {
         $books = Books::find($id);
         return $this->apiResponse(true, "Book Info", 'book', new BookResource($books), JsonResponse::HTTP_OK);
+    }
+
+    public function uploadBookPicture(BookRequest $request, $id)
+    {
+        $book = Books::find($id);
+
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root' => public_path('books'),
+        ]);
+
+        $path_with_filename = $disk->put('', $request->image);
+        $filename = basename($path_with_filename);
+        $bookmedia = Media::find($book->media_id);
+
+
+        if ($bookmedia) {
+            $oldFileName = $bookmedia->filename;
+        } else {
+            $oldFileName = null;
+        }
+        $media = Media::query()
+            ->updateOrCreate(
+                ['id' => $book->media_id ?? 0],
+                ['filename' => $filename]
+            );
+
+
+        $book->media_id = $media->id;
+        $book->save();
+
+        if (!is_null($book['media'])) {
+            $book['media']->filename = $filename;
+        } else {
+            unset($book['media']);
+        }
+
+        if (public_path("books/" . $oldFileName)) {
+
+            File::delete(public_path("books/" . $oldFileName));
+        }
+
+        $bookmedia2 = DB::table('media')->get()->firstWhere('id', $book->media_id);
+
+        if ($bookmedia2) {
+            return $this->apiResponse(true, 'media uploaded', 'bookpicture', asset('profile/' . Media::find($book->media_id)->filename), JsonResponse::HTTP_OK);
+        } else {
+            return $this->apiResponse(false, 'media not upload', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function deleteBookPicture($id)
+    {
+        $book =Books::find($id);
+
+        if ($book->media_id) {
+
+            $bookmedia = DB::table('media')->get()->firstWhere('id', $book->media_id);
+            $filename = $bookmedia->filename;
+            $bookmediatemp = $book->media_id;
+            $book->media_id = null;
+            $book->save();
+            //Storage::delete("public_html/profile" . $filename);
+            File::delete(public_path("books/".$filename));
+            DB::table('media')->where('id', $bookmediatemp)->delete();
+           
+            return $this->apiResponse(true, 'book picture deleted.',null, null, JsonResponse::HTTP_OK);
+        }
+        return $this->apiResponse(false,'book picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
     }
 }

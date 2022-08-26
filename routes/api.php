@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\User\LibraryController;
 use App\Models\Author;
@@ -40,6 +41,13 @@ Route::prefix('auth')->group(function () {
                 Route::get('/logout', 'logout')->middleware('check.roles:1|2|3');
             });
         });
+
+        Route::prefix('profile')->controller(ProfileController::class)->group(function () {
+            Route::post('/photo', 'uploadProfilePicture')->middleware('check.roles:1|2|3');
+            Route::delete('/photo', 'deleteProfilePicture')->middleware('check.roles:1|2|3');
+        });
+
+
         Route::prefix('library')->middleware('check.roles:1|2|3')->group(function () {
             Route::get('/', [LibraryController::class, 'getMyLibrary']);
             Route::post('/add', [LibraryController::class, 'userAddToLibrary']);
@@ -51,6 +59,9 @@ Route::prefix('auth')->group(function () {
             Route::post('/add', 'store');
             Route::post('/{author}', 'update')->middleware('author.id.control');
             Route::delete('/{author}', 'delete')->middleware('author.id.control');
+            Route::post('/{author}/photo', 'uploadAuthorPicture')->middleware('author.id.control');
+            Route::delete('/{author}/photo', 'deleteAuthorPicture')->middleware('author.id.control');
+
         });
 
         Route::prefix('publisher')->controller(PublisherController::class)->middleware('check.roles:1|2')->group(function () {
@@ -69,6 +80,8 @@ Route::prefix('auth')->group(function () {
             Route::post('/', 'store');
             Route::post('/{books}', 'update')->middleware('books.id.control');
             Route::delete('/{books}', 'delete')->middleware('books.id.control');
+            Route::post('/{books}/photo', 'uploadBookPicture')->middleware('books.id.control');
+            Route::delete('/{books}/photo', 'deleteBookPicture')->middleware('books.id.control');
         });
     });
 });

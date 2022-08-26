@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthorRequest;
 use App\Http\Requests\UserAuthRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Author;
+use App\Models\Media;
 use App\Models\PersonalAccessTokens;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends ApiResponseController
@@ -163,4 +169,6 @@ class AuthController extends ApiResponseController
             return $this->apiResponse(false, $e->getMessage(), null, null, JsonResponse::HTTP_NOT_FOUND);
         }
     }
+
+   
 }

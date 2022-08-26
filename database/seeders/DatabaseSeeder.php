@@ -13,11 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-         \App\Models\User::factory(10)->create();
-         \App\Models\Author::factory(10)->create();
-         \App\Models\Publisher::factory(10)->create();
-         \App\Models\Category::factory(10)->create();
-         \App\Models\Books::factory(10)->create();
-         \App\Models\UserBook::factory(10)->create();
+       // \App\Models\User::factory(50)->create();
+     //\App\Models\Author::factory(50)->create();
+        // \App\Models\Publisher::factory(10)->create();
+         //\App\Models\Category::factory(10)->create();
+         //\App\Models\Books::factory(80)->create();
+         \App\Models\UserBook::factory(100)->create();
     }
 }
