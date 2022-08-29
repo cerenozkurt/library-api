@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthorRequest;
 use App\Http\Resources\AuthorResource;
+use App\Http\Resources\BookQuotesResource;
 use App\Models\Author;
+use App\Models\BookQuotes;
+use App\Models\Books;
 use App\Models\Media;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -159,9 +162,10 @@ class AuthorController extends ApiResponseController
         }
     }
 
+
     public function deleteAuthorPicture($id)
     {
-        $author =Author::find($id);
+        $author = Author::find($id);
 
         if ($author->media_id) {
 
@@ -171,11 +175,19 @@ class AuthorController extends ApiResponseController
             $author->media_id = null;
             $author->save();
             //Storage::delete("public_html/profile" . $filename);
-            File::delete(public_path("authors/".$filename));
+            File::delete(public_path("authors/" . $filename));
             DB::table('media')->where('id', $authormediatemp)->delete();
-           
-            return $this->apiResponse(true, 'author picture deleted.',null, null, JsonResponse::HTTP_OK);
+
+            return $this->apiResponse(true, 'author picture deleted.', null, null, JsonResponse::HTTP_OK);
         }
-        return $this->apiResponse(false,'author picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
+        return $this->apiResponse(false, 'author picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    public function getQuotes($id)
+    {
+        $books = Books::where('author_id', $id)->pluck('id');
+        $quotes = BookQuotes::wherein('book_id', $books)->get();
+
+        return $this->apiResponse(true, 'Author quotes', 'quotes', BookQuotesResource::collection($quotes));
     }
 }

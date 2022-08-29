@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LibraryRequest;
 use App\Http\Requests\StoreRequest;
 use App\Http\Resources\AuthorResource;
+use App\Http\Resources\BookQuotesResource;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\UserBookResource;
 use App\Http\Resources\UserResource;
 use App\Models\Author;
+use App\Models\BookQuotes;
 use App\Models\Books;
 use App\Models\User;
 use App\Models\UserBook;
@@ -227,5 +229,11 @@ class LibraryController extends ApiResponseController
             return $this->apiResponse(false, 'There are no book reviews.', null, null, JsonResponse::HTTP_NOT_FOUND);
         }
         return $this->apiResponse(true, 'Book point updated.', 'book_comment', new UserBookResource($ubook), JsonResponse::HTTP_OK);
+    }
+
+    public function getQuotes($id)
+    {
+        $user = BookQuotes::where('user_id',$id)->get();
+        return $this->apiResponse(true, 'User quotes', 'quotes', BookQuotesResource::collection($user));
     }
 }

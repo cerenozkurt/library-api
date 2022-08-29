@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BookRequest;
+use App\Http\Resources\BookQuotes as ResourcesBookQuotes;
+use App\Http\Resources\BookQuotesResource;
 use App\Http\Resources\BookResource;
+use App\Models\BookQuotes;
 use App\Models\Books;
 use App\Models\Media;
 use Illuminate\Http\JsonResponse;
@@ -155,7 +158,7 @@ class BooksController extends ApiResponseController
 
     public function deleteBookPicture($id)
     {
-        $book =Books::find($id);
+        $book = Books::find($id);
 
         if ($book->media_id) {
 
@@ -165,11 +168,69 @@ class BooksController extends ApiResponseController
             $book->media_id = null;
             $book->save();
             //Storage::delete("public_html/profile" . $filename);
-            File::delete(public_path("books/".$filename));
+            File::delete(public_path("books/" . $filename));
             DB::table('media')->where('id', $bookmediatemp)->delete();
-           
-            return $this->apiResponse(true, 'book picture deleted.',null, null, JsonResponse::HTTP_OK);
+
+            return $this->apiResponse(true, 'book picture deleted.', null, null, JsonResponse::HTTP_OK);
         }
-        return $this->apiResponse(false,'book picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
+        return $this->apiResponse(false, 'book picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    public function addQuotes(BookRequest $request, $id)
+    {
+        $quote = BookQuotes::create([
+            'user_id' => auth()->user()->id,
+            'book_id' => $id,
+            'title' => $request->title ?? null,
+            'quotes' => $request->quotes,
+            'page' => $request->page ?? null
+        ]);
+        if ($quote) {
+            return $this->apiResponse(true, 'Book Quotes added succesfully.', 'quote', new BookQuotesResource($quote), JsonResponse::HTTP_OK);
+        }
+        return $this->apiResponse(false, 'Book quotes added unsuccessfully.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    public function deleteQuotes($id)
+    {
+        $user_id = auth()->user()->id;
+        $quotes = BookQuotes::where('user_id', $user_id)->pluck('id');
+        $quotes = BookQuotes::wherein('id', $quotes)->get();
+
+        $usersquote = $quotes->where('id', $id)->first();
+        if ($usersquote) {
+            $delete = $usersquote->delete();
+            if ($delete) {
+                return $this->apiResponse(true, 'Quote delete success', null, null, JsonResponse::HTTP_OK);
+            }
+            return $this->apiResponse(false, 'Quote delete unsuccess', null, null, JsonResponse::HTTP_OK);
+        }
+        return $this->apiResponse(true, 'Quote not found', null, null, JsonResponse::HTTP_OK);
+    }
+
+    public function updateQuotes(BookRequest $request, $id)
+    {
+        $user_id = auth()->user()->id;
+        $quotes = BookQuotes::where('user_id', $user_id)->pluck('id');
+        $quotes = BookQuotes::wherein('id', $quotes)->get();
+
+        $usersquote = $quotes->where('id', $id)->first();
+        if ($usersquote) {
+            $usersquote->title = $request->title ?? $usersquote->title;
+            $usersquote->quotes = $request->quotes ?? $usersquote->quotes;
+            $usersquote->page = $request->page ?? $usersquote->page;
+            $usersquote->save();
+            if ($usersquote) {
+                return $this->apiResponse(true, 'Quote update success', 'quote', new BookQuotesResource($usersquote), JsonResponse::HTTP_OK);
+            }
+            return $this->apiResponse(false, 'Quote update unsuccess', null, null, JsonResponse::HTTP_OK);
+        }
+        return $this->apiResponse(true, 'Quote not found', null, null, JsonResponse::HTTP_OK);
+    }
+
+    public function getQuotes($id)
+    {
+        $quotes = BookQuotes::where('book_id',$id)->get();
+        return $this->apiResponse(true, 'Book quotes.', 'quotes',BookQuotesResource::collection($quotes), JsonResponse::HTTP_OK);
     }
 }

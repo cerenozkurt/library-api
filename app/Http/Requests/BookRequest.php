@@ -52,6 +52,20 @@ class BookRequest extends BaseFormRequest
                     'image' => 'required|image',
                 ];
                 break;
+            case 'addQuotes':
+                return [
+                    'title' => ['string', 'max:70'],
+                    'quotes' => ['required','max:3000'],
+                    'page' => ['integer']
+                ];
+                break;
+                case 'updateQuotes':
+                    return [
+                        'title' => ['string', 'max:70'],
+                        'quotes' => ['max: 3000'],
+                        'page' => ['integer']
+                    ];
+                    break;
         }
     }
 }

@@ -15,6 +15,11 @@ class CreateBookQuotesTable extends Migration
     {
         Schema::create('book_quotes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('book_id')->references('id')->on('books')->onDelete('cascade');
+            $table->string('title');
+            $table->text('quotes');
+            $table->integer('page');
             $table->timestamps();
         });
     }

@@ -88,6 +88,11 @@ Route::prefix('auth')->group(function () {
             Route::delete('/{books}', 'delete')->middleware('books.id.control');
             Route::post('/{books}/photo', 'uploadBookPicture')->middleware('books.id.control');
             Route::delete('/{books}/photo', 'deleteBookPicture')->middleware('books.id.control');
+            Route::post('/{books}/quotes', 'addQuotes')->middleware('books.id.control');
+            Route::delete('/{books}/quotes', 'deleteQuotes');
+            Route::post('/quotes/{books}', 'updateQuotes');
+
+
         });
     });
 });
@@ -106,12 +111,15 @@ Route::prefix('library')->group(function () {
         Route::get('/{user}/get', 'getBooksById')->middleware('user.id.control');
         Route::get('/mostbook', 'mostReadBooks');
         Route::get('/mostauthor', 'mostReadAuthors');
+        Route::get('/{user}/quotes','getQuotes')->middleware('user.id.control');
     });
 
     Route::prefix('books')->controller(BooksController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('/{search}', 'search');
         Route::get('/{books}/get', 'getBooksById')->middleware('books.id.control');
+        Route::get('/{books}/quotes', 'getQuotes')->middleware('books.id.control');
+
     });
 
     Route::prefix('author')->controller(AuthorController::class)->group(function () {
@@ -119,6 +127,7 @@ Route::prefix('library')->group(function () {
         Route::get('/books', 'getBooks');
         Route::get('/{author}/get', 'getBooksById')->middleware('author.id.control');
         Route::get('/{author}', 'search');
+        Route::get('/{author}/quotes','getQuotes')->middleware('author.id.control');
     });
 
     Route::prefix('publisher')->controller(PublisherController::class)->group(function () {
