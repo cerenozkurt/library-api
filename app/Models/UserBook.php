@@ -9,7 +9,7 @@ class UserBook extends Model
 {
     use HasFactory;
     protected $table = 'user_books';
-    protected $fillable = ['user_id','book_id','status'];
+    protected $fillable = ['user_id','book_id','status','comment'];
     
 
     public function scopeUserBook($query,$id)

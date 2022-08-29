@@ -43,6 +43,15 @@ class LibraryRequest extends BaseFormRequest
                     'status' => ['in:will_read,readed,reading'],
                 ];
                 break;
+            case 'updateComment':
+                return [
+                    'comment' => ['min:50','max:2000']
+                ];
+
+            case 'updatePoint':
+                return [
+                    'point' => ['integer', 'min:1','max:10'],
+                ];
         }
     }
    

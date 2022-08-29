@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::post('deneme',[LibraryController::class, 'zamandenemesi']);
 //private rules-> logged in users 
 Route::prefix('auth')->group(function () {
 
@@ -54,6 +54,9 @@ Route::prefix('auth')->group(function () {
             Route::post('/add', [LibraryController::class, 'userAddToLibrary']);
             Route::get('/delete/{books}', [LibraryController::class, 'userDeleteFromLibrary'])->middleware('books.id.control');
             Route::post('/{books}/status',[LibraryController::class, 'updateStatus'])->middleware('books.id.control');
+            Route::post('/{book}/comment',[LibraryController::class, 'updateComment']);
+            Route::post('/{book}/point',[LibraryController::class, 'updatePoint']);
+
         
         });
 

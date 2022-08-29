@@ -17,9 +17,10 @@ class UserBookResource extends JsonResource
     public function toArray($request)
     {
         return [
-
+            'status' => $this->read_status($this->status),
             'book' => new BookResource(Books::find($this->book_id)),
-            'status' => $this->read_status($this->status)
+            'point' => $this->point,
+            'comment' => $this->comment
         ];
     }
 

@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use PharIo\Manifest\AuthorCollection;
 
 class LibraryController extends ApiResponseController
@@ -193,5 +194,38 @@ class LibraryController extends ApiResponseController
         }
 
         return $this->apiResponse(false, 'Book status not update.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
+
+
+    public function updateComment(LibraryRequest $request, $id)
+    {
+        $user = auth()->user();
+        $usersbook =  UserBook::userbook($user->id)->pluck('book_id');
+        $usersbook = Books::wherein('id', $usersbook)->get();
+        if ($usersbook->where('id', $id)->first()) {
+            $ubook = UserBook::where('book_id', $id)->first();
+            $ubook->comment = $request->comment ?? $ubook->comment;
+            $ubook->save();
+        } else {
+            return $this->apiResponse(false, 'There are no book reviews.', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return $this->apiResponse(true, 'Book comment updated.', 'book_comment', new UserBookResource($ubook), JsonResponse::HTTP_OK);
+    }
+
+    public function updatePoint(LibraryRequest $request, $id)
+    {
+        $user = auth()->user();
+        $usersbook =  UserBook::userbook($user->id)->pluck('book_id');
+        $usersbook = Books::wherein('id', $usersbook)->get();
+
+        if ($usersbook->where('id', $id)->first()) {
+            $ubook = UserBook::where('book_id', $id)->first();
+            $ubook->point = $request->point ?? $ubook->point;
+            $ubook->save();
+        } else {
+            return $this->apiResponse(false, 'There are no book reviews.', null, null, JsonResponse::HTTP_NOT_FOUND);
+        }
+        return $this->apiResponse(true, 'Book point updated.', 'book_comment', new UserBookResource($ubook), JsonResponse::HTTP_OK);
     }
 }

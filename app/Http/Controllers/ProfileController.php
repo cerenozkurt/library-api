@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileRequest;
 use App\Models\Media;
 use App\Models\User;
+use App\Models\UserBook;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -14,10 +15,12 @@ use Illuminate\Support\Facades\Storage;
 class ProfileController extends ApiResponseController
 {
 
+
     public function index()
     {
         
     }
+
 
     public function uploadProfilePicture(ProfileRequest $request)
     {
@@ -68,6 +71,7 @@ class ProfileController extends ApiResponseController
         }
     }
 
+
     public function deleteProfilePicture()
     {
         $user = User::find(auth()->user()->id);
@@ -87,7 +91,6 @@ class ProfileController extends ApiResponseController
         }
         return $this->apiResponse(false,'profile picture not found.', null, null, JsonResponse::HTTP_NOT_FOUND);
     }
-
 
 
 }
