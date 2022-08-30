@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\User\LibraryController;
@@ -33,6 +34,8 @@ Route::prefix('auth')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('user')->group(function () {
+            Route::resource('post', PostController::class)->only(['store','update','destroy'])->middleware('post.id.control');
+            Route::get('/post',[PostController::class,'myPosts']);
             Route::controller(AuthController::class)->group(function () {
                 Route::get('/', 'index')->middleware('check.roles:1');
                 Route::post('/edit', 'editProfile')->middleware('check.roles:1|2|3');
@@ -40,8 +43,9 @@ Route::prefix('auth')->group(function () {
                 Route::post('/{user}/role', 'roleAssignment')->middleware('check.roles:1')->middleware('user.id.control');
                 Route::get('/logout', 'logout')->middleware('check.roles:1|2|3');
             });
+          
         });
-
+       
         Route::prefix('profile')->controller(ProfileController::class)->group(function () {
             Route::post('/photo', 'uploadProfilePicture')->middleware('check.roles:1|2|3');
             Route::delete('/photo', 'deleteProfilePicture')->middleware('check.roles:1|2|3');
@@ -59,6 +63,8 @@ Route::prefix('auth')->group(function () {
 
         
         });
+
+        
 
 
         Route::prefix('author')->controller(AuthorController::class)->middleware('check.roles:1|2')->group(function () {
@@ -106,6 +112,8 @@ Route::prefix('library')->group(function () {
             Route::get('/search/{search}', 'search');
             Route::get('/librarians', 'getLibrarians');
         });
+        Route::resource('post', PostController::class)->only(['index','show']);//->middleware('post.id.control');
+        Route::get('{user}/post', [PostController::class , 'usersPosts'])->middleware('user.id.control');
     });
     Route::prefix('library')->controller(LibraryController::class)->group(function () {
         Route::get('/{user}/get', 'getBooksById')->middleware('user.id.control');
