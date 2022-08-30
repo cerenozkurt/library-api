@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\ApiResponseController;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\LibraryRequest;
-use App\Http\Requests\StoreRequest;
 use App\Http\Resources\AuthorResource;
 use App\Http\Resources\BookQuotesResource;
 use App\Http\Resources\BookResource;
@@ -17,11 +15,7 @@ use App\Models\Books;
 use App\Models\User;
 use App\Models\UserBook;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use PharIo\Manifest\AuthorCollection;
 
 class LibraryController extends ApiResponseController
 {

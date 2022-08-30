@@ -8,8 +8,6 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\User\LibraryController;
-use App\Models\Author;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

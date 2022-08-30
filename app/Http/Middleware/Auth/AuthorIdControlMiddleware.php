@@ -5,7 +5,6 @@ namespace App\Http\Middleware\Auth;
 use App\Models\Author;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

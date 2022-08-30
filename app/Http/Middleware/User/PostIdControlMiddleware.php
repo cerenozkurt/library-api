@@ -3,7 +3,6 @@
 namespace App\Http\Middleware\User;
 
 use App\Models\Post;
-use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;

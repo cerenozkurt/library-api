@@ -3,20 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BookRequest;
-use App\Http\Resources\BookQuotes as ResourcesBookQuotes;
 use App\Http\Resources\BookQuotesResource;
 use App\Http\Resources\BookResource;
 use App\Models\BookQuotes;
 use App\Models\Books;
 use App\Models\Media;
-use App\Models\UserBook;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-use function PHPSTORM_META\type;
 
 class BooksController extends ApiResponseController
 {

@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Models\Books;
-use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserBookResource extends JsonResource

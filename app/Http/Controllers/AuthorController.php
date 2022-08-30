@@ -9,14 +9,10 @@ use App\Models\Author;
 use App\Models\BookQuotes;
 use App\Models\Books;
 use App\Models\Media;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends ApiResponseController
 {

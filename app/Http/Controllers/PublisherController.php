@@ -6,7 +6,6 @@ use App\Http\Requests\PublisherRequest;
 use App\Http\Resources\PublisherResource;
 use App\Models\Publisher;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PublisherController extends ApiResponseController
 {
