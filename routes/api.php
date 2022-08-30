@@ -127,7 +127,7 @@ Route::prefix('library')->group(function () {
         Route::get('/{search}', 'search');
         Route::get('/{books}/get', 'getBooksById')->middleware('books.id.control');
         Route::get('/{books}/quotes', 'getQuotes')->middleware('books.id.control');
-
+        Route::get('/{books}/point','point')->middleware('books.id.control');
     });
 
     Route::prefix('author')->controller(AuthorController::class)->group(function () {

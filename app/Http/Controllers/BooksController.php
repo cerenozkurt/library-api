@@ -9,11 +9,14 @@ use App\Http\Resources\BookResource;
 use App\Models\BookQuotes;
 use App\Models\Books;
 use App\Models\Media;
+use App\Models\UserBook;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+
+use function PHPSTORM_META\type;
 
 class BooksController extends ApiResponseController
 {
@@ -233,4 +236,6 @@ class BooksController extends ApiResponseController
         $quotes = BookQuotes::where('book_id',$id)->get();
         return $this->apiResponse(true, 'Book quotes.', 'quotes',BookQuotesResource::collection($quotes), JsonResponse::HTTP_OK);
     }
+
+   
 }

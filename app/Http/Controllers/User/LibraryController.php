@@ -225,6 +225,13 @@ class LibraryController extends ApiResponseController
             $ubook = UserBook::where('book_id', $id)->first();
             $ubook->point = $request->point ?? $ubook->point;
             $ubook->save();
+            
+            $readbooks = UserBook::where('book_id',$id)->pluck('point');
+            $ortpuan =  array_sum($readbooks->toArray())/$readbooks->count();
+            $book = Books::find($id);
+            $book->point = $ortpuan;
+            $book->save();
+
         } else {
             return $this->apiResponse(false, 'There are no book reviews.', null, null, JsonResponse::HTTP_NOT_FOUND);
         }

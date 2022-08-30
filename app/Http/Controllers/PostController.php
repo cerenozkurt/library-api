@@ -118,5 +118,4 @@ class PostController extends ApiResponseController
         return $this->apiResponse(true, 'My posts.', 'posts', PostResource::collection($post), JsonResponse::HTTP_OK);
 
     }
-    
 }

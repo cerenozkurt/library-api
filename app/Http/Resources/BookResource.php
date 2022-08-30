@@ -27,7 +27,8 @@ class BookResource extends JsonResource
             'category' => Category::find($this->category_id)->name,
             'publisher' => Publisher::find($this->publisher_id)->name,
             'read_count' => $this->read_count,
-            'photo' =>  $this->media_id ? asset('books/' . Media::find($this->media_id)->filename) : null, 
+            'point' => $this->point,
+            'photo' =>  $this->media_id ? asset('books/' . Media::find($this->media_id)->filename) : '', 
         ];
     }
 }
