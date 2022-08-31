@@ -110,9 +110,12 @@ Route::prefix('library')->group(function () {
             Route::get('/search/{search}', 'search');
             Route::get('/librarians', 'getLibrarians');
         });
+        Route::get('/{user}/quotes', [BooksController::class,'usersQuotess'])->middleware('user.id.control');
+
         Route::resource('post', PostController::class)->only(['index', 'show']); //->middleware('post.id.control');
         Route::get('{user}/post', [PostController::class, 'usersPosts'])->middleware('user.id.control');
         Route::get('{user}/comment', [CommentController::class, 'userComments'])->middleware('user.id.control');
+
 
         Route::get('/post/{post}/comment', [CommentController::class, 'commentsOfThePost'])->middleware('post.id.control');
         Route::get('/quotes/{comment}/comment', [CommentController::class, 'commentsOfTheQuotes'])->middleware('quotes.id.control');

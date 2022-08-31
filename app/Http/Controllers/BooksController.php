@@ -226,12 +226,18 @@ class BooksController extends ApiResponseController
         }
         return $this->apiResponse(true, 'Quote not found', null, null, JsonResponse::HTTP_OK);
     }
-
-    public function getQuotes($id)
+    public function usersQuotess($id)
     {
-        $quotes = BookQuotes::where('book_id',$id)->get();
+        $quotes = BookQuotes::where('user_id',$id)->orderby('created_at')->get();
         return $this->apiResponse(true, 'Book quotes.', 'quotes',BookQuotesResource::collection($quotes), JsonResponse::HTTP_OK);
     }
 
+    public function getQuotes($id)
+    {
+        $quotes = BookQuotes::where('book_id',$id)->orderby('created_at')->get();
+        return $this->apiResponse(true, 'Book quotes.', 'quotes',BookQuotesResource::collection($quotes), JsonResponse::HTTP_OK);
+    }
+
+   
    
 }
