@@ -42,7 +42,6 @@ Route::prefix('auth')->group(function () {
             Route::delete('/comment/{comment}', [CommentController::class, 'destroy'])->middleware('comment.id.control');
             Route::get('/comment/{comment}', [CommentController::class, 'show'])->middleware('comment.id.control');
 
-
             Route::controller(AuthController::class)->group(function () {
                 Route::get('/', 'index')->middleware('check.roles:1');
                 Route::post('/edit', 'editProfile')->middleware('check.roles:1|2|3');
@@ -57,7 +56,6 @@ Route::prefix('auth')->group(function () {
             Route::delete('/photo', 'deleteProfilePicture')->middleware('check.roles:1|2|3');
         });
 
-
         Route::prefix('library')->middleware('check.roles:1|2|3')->group(function () {
             Route::get('/', [LibraryController::class, 'getMyLibrary']);
             Route::get('/{status}', [LibraryController::class, 'booksForStatus']);
@@ -67,9 +65,6 @@ Route::prefix('auth')->group(function () {
             Route::post('/{book}/comment', [LibraryController::class, 'updateComment']);
             Route::post('/{book}/point', [LibraryController::class, 'updatePoint']);
         });
-
-
-
 
         Route::prefix('author')->controller(AuthorController::class)->middleware('check.roles:1|2')->group(function () {
             Route::post('/add', 'store');
@@ -117,6 +112,11 @@ Route::prefix('library')->group(function () {
         });
         Route::resource('post', PostController::class)->only(['index', 'show']); //->middleware('post.id.control');
         Route::get('{user}/post', [PostController::class, 'usersPosts'])->middleware('user.id.control');
+        Route::get('{user}/comment', [CommentController::class, 'userComments'])->middleware('user.id.control');
+
+        Route::get('/post/{post}/comment', [CommentController::class, 'commentsOfThePost'])->middleware('post.id.control');
+        Route::get('/quotes/{comment}/comment', [CommentController::class, 'commentsOfTheQuotes'])->middleware('quotes.id.control');
+
     });
     Route::prefix('library')->controller(LibraryController::class)->group(function () {
         Route::get('/{user}/get', 'getBooksById')->middleware('user.id.control');
@@ -154,4 +154,5 @@ Route::prefix('library')->group(function () {
         Route::get('/{search}', 'search');
         Route::get('/{category}/get', 'getBooksById')->middleware('category.id.control');
     });
+    
 });

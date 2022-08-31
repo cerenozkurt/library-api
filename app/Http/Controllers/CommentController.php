@@ -6,6 +6,7 @@ use App\Http\Requests\CommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Post;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -105,5 +106,26 @@ class CommentController extends ApiResponseController
             return $this->apiResponse(true, 'Comment deleted.', null, null, JsonResponse::HTTP_OK);
         }
         return $this->apiResponse(false, 'Comment no deleted.', null, null, JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    public function commentsOfThePost($id)
+    {
+        $comments =  Comment::where('post_id',$id)->orderby('created_at')->get();
+
+        return $this->apiResponse(true, 'Post comments', 'comments', CommentResource::collection($comments), JsonResponse::HTTP_OK);
+    }
+
+    public function commentsOfTheQuotes($id)
+    {
+        $comments =  Comment::where('book_quotes_id',$id)->orderby('created_at')->get();
+
+        return $this->apiResponse(true, 'Book Quotes comments', 'comments', CommentResource::collection($comments), JsonResponse::HTTP_OK);
+    }
+
+    public function userComments($id)
+    {
+        $comments =  Comment::where('user_id',$id)->orderby('created_at')->get();
+
+        return $this->apiResponse(true, 'Users comments', 'comments', CommentResource::collection($comments), JsonResponse::HTTP_OK);
     }
 }
