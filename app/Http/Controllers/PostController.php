@@ -11,7 +11,7 @@ class PostController extends ApiResponseController
 {
     public function __construct()
     {
-        $this->middleware('post.id.control')->only('show');
+        $this->middleware('post.id.control')->only('show','update','destroy');
     }
     /**
      * Display a listing of the resource.

@@ -70,6 +70,9 @@ class Kernel extends HttpKernel
         'books.id.control' =>\App\Http\Middleware\Auth\BooksIdControlMiddleware::class,
         'user.id.control' =>\App\Http\Middleware\User\UserIdConrolMiddleware::class,
         'post.id.control' =>\App\Http\Middleware\User\PostIdControlMiddleware::class,
+        'post.user.id.control' =>\App\Http\Middleware\User\PostUserIdControlMiddleware::class,
+        'quotes.user.id.control' =>\App\Http\Middleware\User\BookQuotesUserIdControlMiddleware::class,
+        'comment.id.control' =>\App\Http\Middleware\User\CommentIdControlMiddleware::class,
 
     ];
 }
