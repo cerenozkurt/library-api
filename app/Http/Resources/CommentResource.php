@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\BookQuotes;
+use App\Models\Like;
 use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,7 +25,11 @@ class CommentResource extends JsonResource
                     'id' => $this->id,
                     'time' => $this->time($this->created_at),
                     'post' => new PostResource(Post::find($this->post_id)),
-                    'comment' => $this->comment
+                    'comment' => $this->comment,
+                    'like' => [
+                        'count' => Like::where('comment_id',$this->id)->count(),
+                        'users' => UserResource::collection(User::wherein('id',Like::where('comment_id',$this->id)->select('user_id')->get())->get())
+                    ]
                 ];
                 break;
             case 'bookQuotesStore':
@@ -32,7 +37,11 @@ class CommentResource extends JsonResource
                     'id' => $this->id,
                     'time' => $this->time($this->created_at),
                     'book_quotes' => new BookQuotesResource(BookQuotes::find($this->book_quotes_id)),
-                    'comment' => $this->comment
+                    'comment' => $this->comment,
+                    'like' => [
+                        'count' => Like::where('comment_id',$this->id)->count(),
+                        'users' => UserResource::collection(User::wherein('id',Like::where('comment_id',$this->id)->select('user_id')->get())->get())
+                    ]
                 ];
                 break;
             case 'update' || 'show' || 'commentsOfThePost' || 'commentsOfTheQuotes' || 'userComments':
@@ -42,6 +51,10 @@ class CommentResource extends JsonResource
                     'time' => $this->time($this->created_at),
                     'user' => new UserResource(User::find($this->user_id)),
                     'comment' => $this->comment,
+                    'like' => [
+                        'count' => Like::where('comment_id',$this->id)->count(),
+                        'users' => UserResource::collection(User::wherein('id',Like::where('comment_id',$this->id)->select('user_id')->get())->get())
+                    ]
 
                 ];
         }

@@ -34,6 +34,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    
     /**
      * The attributes that should be cast.
      *
@@ -73,5 +74,21 @@ class User extends Authenticatable
         return $query->where('role_id', '=', '2')->get();
     }
 
-   
+    public function friendsTo() //giden istekler
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+             //1 verince 0ları 2 verince 1 olanları veriyor
+            ->withPivot('accepted')
+            ->withTimestamps();
+    }
+
+    public function friendsFrom() //gelen istekler
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
+            ->withPivot('accepted')
+            ->wherePivot('accepted', 1)
+            ->withTimestamps();
+    }
+
+
 }

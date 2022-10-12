@@ -74,6 +74,8 @@ class Kernel extends HttpKernel
         'quotes.user.id.control' =>\App\Http\Middleware\User\BookQuotesUserIdControlMiddleware::class,
         'comment.id.control' =>\App\Http\Middleware\User\CommentIdControlMiddleware::class,
         'quotes.id.control' =>\App\Http\Middleware\User\BookQuotesIdControlMiddleware::class,
+        'friend.id.control' =>\App\Http\Middleware\User\FriendIdControlMiddleware::class,
+        'like.id.control' =>\App\Http\Middleware\User\LikeIdControlMiddleware::class,
 
 
     ];

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Books;
+use App\Models\Like;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -22,9 +23,13 @@ class BookQuotesResource extends JsonResource
             'time' => $this->time($this->created_at),
             'user_id' => new UserResource(User::find($this->user_id)),
             'book' =>new BookResource(Books::find($this->book_id)),
-            'title' => $this->title,
+            'title' => $this->title ?? '',
             'quotes' => $this->quotes,
-            'page' => $this->page,
+            'page' => $this->page ?? '',
+            'like' => [
+                'count' => Like::where('book_quotes_id',$this->id)->count(),
+                'users' => UserResource::collection(User::wherein('id',Like::where('book_quotes_id',$this->id)->select('user_id')->get())->get())
+            ]
            
         ];
     }

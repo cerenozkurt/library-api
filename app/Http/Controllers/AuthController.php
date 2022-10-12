@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserSave;
 use App\Http\Requests\UserAuthRequest;
 use App\Http\Resources\UserResource;
 
@@ -35,6 +36,7 @@ class AuthController extends ApiResponseController
             'role_id' => 3
         ]);
 
+        
         if ($user) {
             return $this->apiResponse(true, 'Register User Successfully!', 'user', new UserResource($user), JsonResponse::HTTP_CREATED);
         }

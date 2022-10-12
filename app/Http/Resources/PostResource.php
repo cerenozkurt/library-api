@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Like;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,10 @@ class PostResource extends JsonResource
             'title' => $this->title == null ? '' : $this->title,
             'comment' => $this->post,
             'user' => new UserResource(User::find($this->user_id)),
+            'like' => [
+                'count' => Like::where('post_id',$this->id)->count(),
+                'users' => UserResource::collection(User::wherein('id',Like::where('post_id',$this->id)->select('user_id')->get())->get())
+            ]
 
         ];
     }

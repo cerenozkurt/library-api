@@ -5,6 +5,9 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublisherController;
@@ -23,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('rytdeneme', [Controller::class, 'rytdeneme']);
+Route::get('bildirim',[LikeController::class, 'bildirim']);
 Route::post('deneme', [LibraryController::class, 'zamandenemesi']);
 //private rules-> logged in users 
 Route::prefix('auth')->group(function () {
@@ -49,7 +54,33 @@ Route::prefix('auth')->group(function () {
                 Route::post('/{user}/role', 'roleAssignment')->middleware('check.roles:1')->middleware('user.id.control');
                 Route::get('/logout', 'logout')->middleware('check.roles:1|2|3');
             });
+
+            Route::controller(FollowController::class)->prefix('follow')->group(function(){
+                Route::get('sent', 'followSent');
+                Route::get('from','followFrom');
+                Route::delete('/{friend}/delete', 'rejectFollow')->middleware('friend.id.control');
+                Route::get('/{friend}/accept','acceptFollow')->middleware('friend.id.control');
+                Route::get('/friends','getMyFriends');
+                Route::get('/{user}/friends','getUsersFriends')->middleware('user.id.control');
+                Route::delete('/{friend}', 'deleteFriend')->middleware('friend.id.control');
+                Route::post('/friend','addFriend');
+                Route::delete('/request/{friend}','deleteRequest')->middleware('friend.id.control');
+
+            });
+
+            Route::controller(LikeController::class)->prefix('like')->group(function(){
+                Route::post('/{post}/post', 'addPostLike')->middleware('post.id.control');
+                Route::post('/{comment}/quotes', 'addQuotesLike')->middleware('quotes.id.control');
+                Route::post('/{comment}/comment', 'addCommentLike')->middleware('comment.id.control');
+                Route::delete('/{like}', 'deleteLike')->middleware('like.id.control');
+
+
+            });
         });
+
+
+
+      
 
         Route::prefix('profile')->controller(ProfileController::class)->group(function () {
             Route::post('/photo', 'uploadProfilePicture')->middleware('check.roles:1|2|3');
